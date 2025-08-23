@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: 'Branch to clone'
+        description: 'Emacs branch to clone'
         required: true
         default: 'w32-vt-seq'
 
@@ -20,6 +20,7 @@ jobs:
     name: Prepare build version
     runs-on: ubuntu-latest
     env:
+      EMACS_BRANCH: ${{ github.event.inputs.branch }}
       EMACS_REPO: https://github.com/ewantown/emacs.git
       GH_TOKEN: ${{ github.token }}
     steps:
@@ -31,7 +32,7 @@ jobs:
           cd ./git/emacs/
           git clone --depth 1 $EMACS_REPO .
           ts=`date +'%Y%m%d'`
-          commit=`git rev-parse --short=7 HEAD`
+          commit=`git rev-parse --short=7 $EMACS_BRANCH`
           major_ver=`cat configure.ac | grep -Po 'AC_INIT\(.*\[\K\d+'`
           version=`echo ${major_ver}.${{ github.run_number }}.${ts}.${commit}`
 
