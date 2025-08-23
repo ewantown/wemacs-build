@@ -96,7 +96,7 @@ jobs:
       # This is the shortest job, but in this case it pulls all MSYS/MINGW64
       - name: Clone Emacs
         if: runner.os == 'Windows'
-        run: .\emacs-build.cmd --clone --repo $EMACS_REPO --branch ${{ needs.prepare_env.outputs.commit }}
+        run: .\emacs-build.cmd --clone --repo ${{ needs.prepare_env.outputs.repo }} --branch ${{ needs.prepare_env.outputs.commit }}
 
       - name: Install deps
         if: runner.os == 'Windows'
