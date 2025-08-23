@@ -128,7 +128,7 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ github.token }}
-          file: ./zips/*{-full.zip}
+          file: ./zips/*
           file_glob: true
           tag: v${{ needs.prepare_env.outputs.version }}
           release_name: emacs_${{ needs.prepare_env.outputs.version }}
