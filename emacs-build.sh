@@ -193,7 +193,9 @@ function action0_clean_rest ()
 
 function action0_clone ()
 {
-    clone_repo "$emacs_branch" "$emacs_repo" "$emacs_source_dir"
+    if test "$emacs_branch" != "local"; then
+	clone_repo "$emacs_branch" "$emacs_repo" "$emacs_source_dir"
+    fi
     if test "$emacs_apply_patches" = "yes"; then
         apply_patches "$emacs_source_dir" || true
     fi
@@ -367,7 +369,7 @@ gif mingw-giflib
 gnutls mingw-gnutls
 harfbuzz mingw-harfbuzz
 jpeg mingw-libjpeg-turbo
-json mingw-jansson
+mingw-jansson
 lcms2 mingw-lcms2
 native-compilation mingw-libgccjit
 png mingw-libpng
@@ -456,7 +458,8 @@ packing_slim_exclusion="
 .*share/emacs/.*/lisp/play
 "
 
-dependency_exclusions=""
+# HACK! weird bug... if "", (<deps> | list_filter -e "") excludes all <deps> 
+dependency_exclusions="nil"
 all_features=`feature_list | cut -f 1 -d ' '`
 add_all_features
 
@@ -468,12 +471,14 @@ emacs_build_version=0.4
 emacs_slim_build=no
 emacs_build_threads=$((`nproc`*2))
 emacs_build_options="--disable-build-details --without-dbus"
-emacs_apply_patches=yes
+emacs_apply_patches=no
 emacs_pkg_msix=no
 # This is needed for pacman to return the right text
 export LANG=C
-emacs_repo=https://github.com/emacs-mirror/emacs.git
-emacs_branch=""
+
+emacs_repo="git@github.com:ewantown/emacs.git"
+emacs_branch="w32-vt-seq"
+
 emacs_build_root=`pwd`
 emacs_build_git_dir="$emacs_build_root/git"
 emacs_build_build_dir="$emacs_build_root/build"
@@ -494,6 +499,7 @@ while test -n "$*"; do
         --threads) shift; emacs_build_threads="$1";;
         --repo) shift; emacs_repo="$1";;
         --branch) shift; emacs_branch="$1";;
+	--local) shift; emacs_source_dir="$1";;
         --no-patches) emacs_apply_patches=no;;
         --with-all) add_all_features;;
         --without-*) delete_feature `echo $1 | sed -e 's,--without-,,'`;;
@@ -550,7 +556,11 @@ if test "$emacs_slim_build" = "yes"; then
     dependency_exclusions="$dependency_slim_exclusions"
 fi
 if test -z "$emacs_branch"; then
-    emacs_branch="master"
+    if test -z "$emacs_source_dir"; then
+	emacs_branch="master"
+    else
+	emacs_branch="local"
+    fi
 fi
 actions=`unique_list $actions`
 if test -z "$actions"; then
@@ -567,8 +577,12 @@ if test "$emacs_branch_name" != "$emacs_branch"; then
     echo Emacs branch ${emacs_branch} renamed to ${emacs_branch_name} to avoid filesystem problems.
 fi
 
-emacs_source_dir="$emacs_build_git_dir/$emacs_branch_name"
+if test -z "$emacs_source_dir"; then
+   emacs_source_dir="$emacs_build_git_dir/$emacs_branch_name"
+fi
+
 emacs_build_dir="$emacs_build_build_dir/$emacs_branch_name-$architecture"
+
 emacs_install_dir="$emacs_build_install_dir/$emacs_branch_name-$architecture"
 emacs_full_install_dir="${emacs_install_dir}-full"
 
