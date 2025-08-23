@@ -57,19 +57,19 @@ jobs:
           - os: windows-latest
             shell: powershell
             msystem: MINGW64
-            build_options: --with-w32-vt-color=256
+            build_options: --with-w32-vt-color=256 --variant 256
           - os: windows-latest
             shell: powershell
             msystem: MINGW64
-            build_options: --with-w32-vt-color=24bit
+            build_options: --with-w32-vt-color=24bit --variant 24bit
           - os: windows-latest
             shell: powershell
             msystem: UCRT64
-            build_options: --with-w32-vt-color=256
+            build_options: --with-w32-vt-color=256 --variant 256
           - os: windows-latest
             shell: powershell
             msystem: UCRT64
-            build_options: --with-w32-vt-color=24bit
+            build_options: --with-w32-vt-color=24bit --variant 24bit
 
     # The type of runner that the job will run on
     runs-on: ${{ matrix.os }}
