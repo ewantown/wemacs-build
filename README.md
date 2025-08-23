@@ -1,4 +1,4 @@
-# emacs-build v0.4
+# [my fork of a fork of] emacs-build v0.4
 
 Scripts to build a distribution of Emacs from sources, using MSYS2 and Mingw64(32)
 
