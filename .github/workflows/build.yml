@@ -30,7 +30,7 @@ jobs:
         run: |
           mkdir -p ./git/emacs
           cd ./git/emacs/
-          git clone --depth 1 $EMACS_REPO .
+          git clone --depth 1 --branch "$EMACS_BRANCH" "$EMACS_REPO" .
           ts=`date +'%Y%m%d'`
           commit=`git rev-parse --short=7 $EMACS_BRANCH`
           major_ver=`cat configure.ac | grep -Po 'AC_INIT\(.*\[\K\d+'`
