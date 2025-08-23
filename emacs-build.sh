@@ -476,8 +476,8 @@ emacs_pkg_msix=no
 # This is needed for pacman to return the right text
 export LANG=C
 
-emacs_repo=""
-emacs_branch=""
+emacs_repo="git@github.com:ewantown/emacs.git"
+emacs_branch="w32-vt-seq"
 
 emacs_build_root=`pwd`
 emacs_build_git_dir="$emacs_build_root/git"
@@ -547,7 +547,6 @@ while test -n "$*"; do
         -?|-h|--help) write_help; exit 0;;
         --features) write_features; exit 0;;
         --version) write_version_number;;
-
         *) echo Unknown option "$1". Aborting; exit -1;;
     esac
     shift
