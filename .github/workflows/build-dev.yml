@@ -53,10 +53,6 @@ jobs:
         include:
           - os: windows-latest
             shell: powershell
-            msystem: MINGW64
-            build_options: --slim
-          - os: windows-latest
-            shell: powershell
             msystem: UCRT64
             build_options: --slim
             
