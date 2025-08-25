@@ -106,9 +106,15 @@ jobs:
         run: |
           .\emacs-build.cmd --slim --branch ${{ needs.prepare_env.outputs.commit }} --pack-all ${{ matrix.build_options }}
 
-      # Upload build artifacts for development
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+      # Upload release for each build
+      - name: Upload binaries to release
+        id: upload_release
+        uses: svenstaro/upload-release-action@v2
         with:
-          name: emacs-build-${{ needs.prepare_env.outputs.version }}
-          path: ./zips/*
+          repo_token: ${{ github.token }}
+          file: ./zips/*
+          file_glob: true
+          tag: v${{ needs.prepare_env.outputs.version }}
+          release_name: emacs_${{ needs.prepare_env.outputs.version }}_DEV
+          draft: false
+          prerelease: false
