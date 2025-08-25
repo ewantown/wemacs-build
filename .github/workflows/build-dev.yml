@@ -1,0 +1,119 @@
+# This is a basic workflow to help you get started with Actions
+
+name: build
+
+# Controls when the action will run.
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Emacs branch to clone'
+        required: true
+        default: 'w32-vt-seq'
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  prepare_env:
+    name: Prepare build version
+    runs-on: ubuntu-latest
+    env:
+      EMACS_BRANCH: ${{ github.event.inputs.branch }}
+      EMACS_REPO: https://github.com/ewantown/emacs.git
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get build version
+        id: vars
+        run: |
+          mkdir -p ./git/emacs
+          cd ./git/emacs/
+          git clone --depth 1 --branch "$EMACS_BRANCH" "$EMACS_REPO" .
+          ts=`date +'%Y%m%d'`
+          commit=`git rev-parse --short=7 $EMACS_BRANCH`
+          major_ver=`cat configure.ac | grep -Po 'AC_INIT\(.*\[\K\d+'`
+          version=`echo ${major_ver}.${{ github.run_number }}.${ts}.${commit}`
+
+          echo "commit=${commit}" >> $GITHUB_ENV
+          echo "version=${version}" >> $GITHUB_ENV
+          echo "pkg_version=${major_ver}.${{ github.run_number }}.0.0" >> $GITHUB_ENV
+    outputs:
+      repo: ${{ env.EMACS_REPO }}
+      version: ${{ env.version }}
+      pkg_version: ${{ env.pkg_version }}
+      commit: ${{ env.commit }}
+
+  build:
+    needs: prepare_env
+    name: Build Emacs
+    # Matrix strategy from
+    # https://github.com/msys2/MINGW-packages/blob/master/.github/workflows/main.yml
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            shell: powershell
+            msystem: MINGW64
+            build_options: --without-all
+          - os: windows-latest
+            shell: powershell
+            msystem: UCRT64
+            build_options: --without-all
+            
+    # The type of runner that the job will run on
+    runs-on: ${{ matrix.os }}
+    env:
+      MSYS2_DIR: C:\msys64
+      EMACS_REPO: ${{ needs.prepare_env.outputs.repo }}
+      EMACS_PKG_VERSION: ${{ needs.prepare_env.outputs.pkg_version }}
+      EMACS_CERT_SECRET: ${{ secrets.EMACS_CERT_SECRET }}
+
+    defaults:
+      run:
+        shell: ${{ matrix.shell }}
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+
+      - name: Setup Msys2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{ matrix.msystem }}
+          release: false
+
+      # This is the shortest job, but in this case it pulls all MSYS/MINGW64
+      - name: Clone Emacs
+        if: runner.os == 'Windows'
+        run: .\emacs-build.cmd --clone --repo ${{ needs.prepare_env.outputs.repo }} --branch ${{ needs.prepare_env.outputs.commit }}
+
+      - name: Install deps
+        if: runner.os == 'Windows'
+        run: |
+          .\emacs-build.cmd --slim --ensure ${{ matrix.build_options }}
+          if ("${{ matrix.build_options }}" -notmatch "--without-mps") { .github/scripts/install-libs.cmd }
+
+      - name: Build Emacs
+        if: runner.os == 'Windows'
+        # Require --with-* flags, else the deps will not be included properly
+        run: |
+          .\emacs-build.cmd --slim --branch ${{ needs.prepare_env.outputs.commit }} --configure --build-dev ${{ matrix.build_options }}
+
+      - name: Install winget
+        if: runner.os == 'Windows'
+        uses: Cyberboss/install-winget@v1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Package Emacs
+        if: runner.os == 'Windows'
+        run: |
+          .\emacs-build.cmd --slim --branch ${{ needs.prepare_env.outputs.commit }} --pack-all ${{ matrix.build_options }}
+
+      # Upload build artifacts for development
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: emacs-build-${{ needs.prepare_env.outputs.version }}
+          path: ./zips/*
