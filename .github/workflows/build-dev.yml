@@ -54,11 +54,11 @@ jobs:
           - os: windows-latest
             shell: powershell
             msystem: MINGW64
-            build_options: --without-all
+            build_options: --slim
           - os: windows-latest
             shell: powershell
             msystem: UCRT64
-            build_options: --without-all
+            build_options: --slim
             
     # The type of runner that the job will run on
     runs-on: ${{ matrix.os }}
