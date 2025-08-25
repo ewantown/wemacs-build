@@ -92,8 +92,7 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           .\emacs-build.cmd --slim --ensure ${{ matrix.build_options }}
-          if ("${{ matrix.build_options }}" -notmatch "--without-mps") { .github/scripts/install-libs.cmd }
-
+          
       - name: Build Emacs
         if: runner.os == 'Windows'
         # Require --with-* flags, else the deps will not be included properly
