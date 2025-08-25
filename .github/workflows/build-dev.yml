@@ -113,7 +113,7 @@ jobs:
 
       # Upload build artifacts for development
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: emacs-build-${{ needs.prepare_env.outputs.version }}
           path: ./zips/*
