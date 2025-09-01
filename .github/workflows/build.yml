@@ -57,11 +57,11 @@ jobs:
           - os: windows-latest
             shell: powershell
             msystem: MINGW64
-            build_options: --nativecomp
+            build_options:
           - os: windows-latest
             shell: powershell
             msystem: UCRT64
-            build_options: --nativecomp
+            build_options:
 
     # The type of runner that the job will run on
     runs-on: ${{ matrix.os }}
