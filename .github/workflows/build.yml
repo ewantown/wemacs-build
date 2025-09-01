@@ -12,7 +12,7 @@ on:
       branch:
         description: 'Emacs branch to clone'
         required: true
-        default: 'w32-vt-seq'
+        default: 'w32-virtual-terminal-sequences'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -57,19 +57,11 @@ jobs:
           - os: windows-latest
             shell: powershell
             msystem: MINGW64
-            build_options: --nativecomp-aot --with-w32-vt-color=256 --variant 256
-          - os: windows-latest
-            shell: powershell
-            msystem: MINGW64
-            build_options: --nativecomp-aot --with-w32-vt-color=24bit --variant 24bit
+            build_options: --nativecomp-aot
           - os: windows-latest
             shell: powershell
             msystem: UCRT64
-            build_options: --nativecomp-aot --with-w32-vt-color=256 --variant 256
-          - os: windows-latest
-            shell: powershell
-            msystem: UCRT64
-            build_options: --nativecomp-aot --with-w32-vt-color=24bit --variant 24bit
+            build_options: --nativecomp-aot
 
     # The type of runner that the job will run on
     runs-on: ${{ matrix.os }}

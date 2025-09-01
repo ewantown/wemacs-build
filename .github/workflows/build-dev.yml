@@ -9,7 +9,7 @@ on:
       branch:
         description: 'Emacs branch to clone'
         required: true
-        default: 'w32-vt-seq'
+        default: 'w32-virtual-terminal-sequences'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
