@@ -477,7 +477,7 @@ emacs_pkg_msix=no
 export LANG=C
 
 emacs_repo="git@github.com:ewantown/emacs.git"
-emacs_branch="w32-vt-seq"
+emacs_branch="w32-virtual-terminal-sequences"
 
 emacs_build_root=`pwd`
 emacs_build_git_dir="$emacs_build_root/git"
