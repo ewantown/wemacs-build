@@ -57,11 +57,11 @@ jobs:
           - os: windows-latest
             shell: powershell
             msystem: MINGW64
-            build_options: --nativecomp-aot --compress
+            build_options: --slim
           - os: windows-latest
             shell: powershell
             msystem: UCRT64
-            build_options: --nativecomp-aot --compress
+            build_options: --slim
 
     # The type of runner that the job will run on
     runs-on: ${{ matrix.os }}
@@ -94,14 +94,14 @@ jobs:
       - name: Install deps
         if: runner.os == 'Windows'
         run: |
-          .\emacs-build.cmd --ensure ${{ matrix.build_options }}
+          .\emacs-build.cmd --slim --ensure ${{ matrix.build_options }}
           if ("${{ matrix.build_options }}" -notmatch "--without-mps") { .github/scripts/install-libs.cmd }
 
       - name: Build Emacs
         if: runner.os == 'Windows'
         # Require --with-* flags, else the deps will not be included properly
         run: |
-          .\emacs-build.cmd --clean --branch ${{ needs.prepare_env.outputs.commit }} --configure --build-dev ${{ matrix.build_options }}
+          .\emacs-build.cmd --slim --branch ${{ needs.prepare_env.outputs.commit }} --configure --build-dev ${{ matrix.build_options }}
 
       - name: Install winget
         if: runner.os == 'Windows'
@@ -112,7 +112,7 @@ jobs:
       - name: Package Emacs
         if: runner.os == 'Windows'
         run: |
-          .\emacs-build.cmd --branch ${{ needs.prepare_env.outputs.commit }} --pack-all ${{ matrix.build_options }}
+          .\emacs-build.cmd --slim --branch ${{ needs.prepare_env.outputs.commit }} --pack-all ${{ matrix.build_options }}
 
       # Upload release for each build
       - name: Upload binaries to release
