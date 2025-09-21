@@ -95,11 +95,11 @@ jobs:
         run: |
           .\emacs-build.cmd --slim --branch ${{ needs.prepare_env.outputs.commit }} --configure --build-dev ${{ matrix.build_options }}
 
-      - name: Install winget
-        if: runner.os == 'Windows'
-        uses: Cyberboss/install-winget@v1
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #- name: Install winget
+      #  if: runner.os == 'Windows'
+      #  uses: Cyberboss/install-winget@v1
+      #  with:
+      #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Package Emacs
         if: runner.os == 'Windows'
